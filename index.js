@@ -5,6 +5,24 @@ const path = require("path");
 const cors = require("cors");
 const app = express();
 const { mergePDFs } = require("./src/MergePDFs");
+const bodyParser = require('body-parser');
+
+const mongoose = require('mongoose');
+
+const Schema = mongoose.Schema;
+const messageSchema = new Schema({
+    name: String,
+    email: String,
+    message: String
+});
+
+// create a model
+const Message = mongoose.model('message', messageSchema);
+
+// Connect to MongoDB database
+mongoose.connect('mongodb+srv://srinivas:Ysrinivas1@cluster0.rdtt5ut.mongodb.net/file-fusion?retryWrites=true&w=majority', { useNewUrlParser: true, useUnifiedTopology: true })
+  .then(() => console.log('Connected to database'))
+  .catch(err => console.error('Error connecting to database', err));
 
 const PORT = process.env.PORT || 5000;
 
@@ -14,6 +32,14 @@ app.use(
     credentials: true,
   })
 );
+
+// Middleware for parsing JSON data
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({
+  extended: true
+}));
+
+
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
@@ -60,6 +86,18 @@ app.post("/merge", upload.array("files"), async (req, res) => {
     });
   } else {
     res.json({ error: "File type not supported" });
+  }
+});
+
+// Route to add a new message
+app.post('/message', async (req, res) => {
+  const { name, email, message } = req.body;
+  const newMessage = new Message({ name, email, message });
+  const messageCreated = await newMessage.save()
+  if(messageCreated){
+    res.status(201).json({ success: true, message: 'Message added' })
+  }else{
+    res.status(400).json({ success: false, message: err.message })
   }
 });
 
