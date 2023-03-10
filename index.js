@@ -20,7 +20,7 @@ const messageSchema = new Schema({
 const Message = mongoose.model('message', messageSchema);
 
 // Connect to MongoDB database
-mongoose.connect('mongodb+srv://srinivas:Ysrinivas1@cluster0.rdtt5ut.mongodb.net/file-fusion?retryWrites=true&w=majority', { useNewUrlParser: true, useUnifiedTopology: true })
+mongoose.connect(process.env.MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true })
   .then(() => console.log('Connected to database'))
   .catch(err => console.error('Error connecting to database', err));
 
